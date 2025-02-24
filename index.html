@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spermuell is not a crime!</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+            font-family: Sofia;
+        }
+        .search-container {
+            width: 100%; /* Match table width */
+            max-width: 800px; /* Consistent with body */
+            margin-bottom: 40px;
+        }
+        #hide-past {
+            padding: 8px 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #555;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        #hide-past:hover {
+            background-color: #666;
+        }
+        #searchInput {
+            padding: 8px;
+            width: 100%; /* Full width of container */
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            box-sizing: border-box; /* Include padding in width */
+            margin-right: 0; /* Remove margin interference */
+            display: block; /* Full-width block */
+        }
+        #searchInput::placeholder {
+            transition: color 0.3s;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+        th, td {
+            border: 1px solid;
+            padding: 8px;
+            text-align: left;
+            transition: border-color 0.3s, color 0.3s;
+        }
+        th {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        th:hover {
+            transition: background-color 0.3s;
+        }
+        tr:nth-child(even) {
+            transition: background-color 0.3s;
+        }
+        tr:hover {
+            transition: background-color 0.3s;
+        }
+        #error {
+            display: none;
+            transition: color 0.3s;
+        }
+        .hidden {
+            display: none;
+        }
+        #themeSwitch {
+            padding: 8px 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #555;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        #themeSwitch:hover {
+            background-color: #666;
+        }
+        /* Third column adjustments */
+        th:nth-child(3), td:nth-child(3) {
+            width: 15%;
+            text-align: center;
+        }
+        td a {
+            color: #1e90ff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        td a:hover {
+            text-decoration: underline;
+            color: #00bfff;
+        }
+
+        /* Dark Mode (default) */
+        body {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+        h1 {
+            color: #ffffff;
+        }
+        #searchInput {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+        #searchInput::placeholder {
+            color: #888;
+        }
+        table {
+            background-color: #252526;
+        }
+        th, td {
+            border-color: #3c3c3c;
+            color: #d4d4d4;
+        }
+        th {
+            background-color: #333333;
+        }
+        th:hover {
+            background-color: #444444;
+        }
+        tr:nth-child(even) {
+            background-color: #2a2a2a;
+        }
+        tr:hover {
+            background-color: #363636;
+        }
+        #error {
+            color: #ff5555;
+        }
+        body.dark-mode td a {
+            color: #1e90ff;
+        }
+        body.dark-mode td a:hover {
+            color: #00bfff;
+        }
+
+        /* Light Mode */
+        body:not(.dark-mode) {
+            background-color: #ffffff;
+            color: #333;
+        }
+        body:not(.dark-mode) h1 {
+            color: #2c3e50;
+        }
+        body:not(.dark-mode) #searchInput {
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+        body:not(.dark-mode) #searchInput::placeholder {
+            color: #888;
+        }
+        body:not(.dark-mode) table {
+            background-color: #fff;
+        }
+        body:not(.dark-mode) th, body:not(.dark-mode) td {
+            border-color: #ddd;
+            color: #333;
+        }
+        body:not(.dark-mode) th {
+            background-color: #f2f2f2;
+        }
+        body:not(.dark-mode) th:hover {
+            background-color: #e0e0e0;
+        }
+        body:not(.dark-mode) tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        body:not(.dark-mode) tr:hover {
+            background-color: #f5f5f5;
+        }
+        body:not(.dark-mode) #error {
+            color: red;
+        }
+        body:not(.dark-mode) td a {
+            color: #0066cc;
+        }
+        body:not(.dark-mode) td a:hover {
+            color: #003399;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="header">
+        <h1>Sperrmüll Termine Karlsruhe</h1>
+    	<button id="hide-past">Nur aktuelle Termine</button>
+        <button id="themeSwitch">💡</button>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Straße oder Datum suchen...">
+    </div>
+    <table id="jsonTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">Datum</th>
+                <th onclick="sortTable(1)">Straße</th>
+                <th>Navigation</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+    <div id="error"></div>
+
+    <script>
+    document.getElementById("hide-past").addEventListener("click", function () {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize time to compare only dates
+    
+        document.querySelectorAll("table tbody tr").forEach(row => {
+            const dateCell = row.querySelector("td:first-child"); // Adjust index if date is in another column
+            if (dateCell) {
+                const dateText = dateCell.textContent.trim();
+                const [day, month, year] = dateText.split(".");
+                const entryDate = new Date(year, month - 1, day); // Convert to JS Date object
+    
+                if (entryDate < today) {
+                    row.style.display = "none"; // Hide past entries
+                }
+            }
+        });
+    });
+    </script>
+
+    <script>
+        let originalData = [];
+        let isDarkMode = true;
+
+        async function loadJson() {
+            try {
+                const response = await fetch('data.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const jsonData = await response.json();
+                originalData = flattenJson(jsonData);
+                displayTable(originalData);
+            } catch (error) {
+                const errorDiv = document.getElementById('error');
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = `Error loading JSON: ${error.message}`;
+            }
+        }
+
+        function flattenJson(jsonData) {
+            const result = [];
+            Object.entries(jsonData).forEach(([date, streets]) => {
+                streets.forEach(street => {
+                    result.push({ date, street });
+                });
+            });
+            return result;
+        }
+
+        function displayTable(data) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.street + ', Karlsruhe, Germany')}`;
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.street}</td>
+                    <td><a href="${mapUrl}" target="_blank"><img src="https://haram.club/share/direction.png" alt="direction icon" width="20"></a></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterTable(searchTerm) {
+            searchTerm = searchTerm.toLowerCase();
+            const filteredData = originalData.filter(item => 
+                item.date.toLowerCase().includes(searchTerm) || 
+                item.street.toLowerCase().includes(searchTerm)
+            );
+            displayTable(filteredData);
+        }
+
+        function sortTable(columnIndex) {
+            if (columnIndex > 1) return; // Skip URL column
+            const isDateColumn = columnIndex === 0;
+            originalData.sort((a, b) => {
+                const valueA = isDateColumn ? a.date : a.street;
+                const valueB = isDateColumn ? b.date : b.street;
+                return valueA.localeCompare(valueB);
+            });
+            displayTable(originalData);
+        }
+
+        const themeSwitch = document.getElementById('themeSwitch');
+        themeSwitch.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            themeSwitch.textContent = isDarkMode ? '💡' : 'Dunkel';
+        });
+
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            filterTable(e.target.value);
+        });
+
+        window.onload = loadJson;
+	hidePastButton.click();
+    </script>
+</body>
+</html>
