@@ -6,6 +6,7 @@
     <title>Spermuell is not a crime!</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia">
     <style>
+        /* Global styles */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -16,6 +17,7 @@
         }
         .header {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
@@ -25,11 +27,11 @@
             font-family: Sofia;
         }
         .search-container {
-            width: 100%; /* Match table width */
-            max-width: 800px; /* Consistent with body */
+            width: 100%;
+            max-width: 800px;
             margin-bottom: 40px;
         }
-        #hide-past {
+        #hide-past, #themeSwitch {
             padding: 8px 16px;
             cursor: pointer;
             border: none;
@@ -37,21 +39,25 @@
             background-color: #555;
             color: white;
             transition: background-color 0.3s;
+            margin: 5px 0;
         }
-        #hide-past:hover {
+        #hide-past:hover, #themeSwitch:hover {
             background-color: #666;
         }
         #searchInput {
             padding: 8px;
-            width: 100%; /* Full width of container */
+            width: 100%;
             border-radius: 4px;
             transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-            box-sizing: border-box; /* Include padding in width */
-            margin-right: 0; /* Remove margin interference */
-            display: block; /* Full-width block */
+            box-sizing: border-box;
+            display: block;
+            font-size: 1em;
         }
         #searchInput::placeholder {
             transition: color 0.3s;
+        }
+        .table-container {
+            overflow-x: auto;
         }
         table {
             width: 100%;
@@ -70,7 +76,7 @@
             transition: background-color 0.3s;
         }
         th:hover {
-            transition: background-color 0.3s;
+            background-color: #444;
         }
         tr:nth-child(even) {
             transition: background-color 0.3s;
@@ -84,18 +90,6 @@
         }
         .hidden {
             display: none;
-        }
-        #themeSwitch {
-            padding: 8px 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 4px;
-            background-color: #555;
-            color: white;
-            transition: background-color 0.3s;
-        }
-        #themeSwitch:hover {
-            background-color: #666;
         }
         /* Third column adjustments */
         th:nth-child(3), td:nth-child(3) {
@@ -111,7 +105,6 @@
             text-decoration: underline;
             color: #00bfff;
         }
-
         /* Dark Mode (default) */
         body {
             background-color: #1e1e1e;
@@ -156,7 +149,6 @@
         body.dark-mode td a:hover {
             color: #00bfff;
         }
-
         /* Light Mode */
         body:not(.dark-mode) {
             background-color: #ffffff;
@@ -201,44 +193,77 @@
         body:not(.dark-mode) td a:hover {
             color: #003399;
         }
+        /* Mobile Optimizations */
+        @media (max-width: 480px) {
+            body {
+                margin: 10px;
+                font-size: 14px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header h1 {
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+            #hide-past, #themeSwitch {
+                padding: 6px 10px;
+                font-size: 0.9em;
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            #searchInput {
+                padding: 6px;
+                font-size: 0.9em;
+            }
+            th, td {
+                padding: 6px;
+                font-size: 0.9em;
+            }
+        }
     </style>
 </head>
 <body class="dark-mode">
     <div class="header">
         <h1>Sperrmüll Termine Karlsruhe</h1>
-    	<button id="hide-past">Nur aktuelle Termine</button>
-        <button id="themeSwitch">💡</button>
+        <div>
+            <button id="hide-past">Nur aktuelle Termine</button>
+            <button id="themeSwitch">💡</button>
+        </div>
     </div>
 
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Straße oder Datum suchen...">
     </div>
-    <table id="jsonTable">
-        <thead>
-            <tr>
-                <th onclick="sortTable(0)">Datum</th>
-                <th onclick="sortTable(1)">Straße</th>
-                <th>Navigation</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+
+    <div class="table-container">
+      <table id="jsonTable">
+          <thead>
+              <tr>
+                  <th onclick="sortTable(0)">Datum</th>
+                  <th onclick="sortTable(1)">Straße</th>
+                  <th>Navigation</th>
+              </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
     <div id="error"></div>
 
     <script>
     document.getElementById("hide-past").addEventListener("click", function () {
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Normalize time to compare only dates
-    
+        today.setHours(0, 0, 0, 0);
         document.querySelectorAll("table tbody tr").forEach(row => {
-            const dateCell = row.querySelector("td:first-child"); // Adjust index if date is in another column
+            const dateCell = row.querySelector("td:first-child");
             if (dateCell) {
                 const dateText = dateCell.textContent.trim();
                 const [day, month, year] = dateText.split(".");
-                const entryDate = new Date(year, month - 1, day); // Convert to JS Date object
-    
+                const entryDate = new Date(year, month - 1, day);
                 if (entryDate < today) {
-                    row.style.display = "none"; // Hide past entries
+                    row.style.display = "none";
                 }
             }
         });
@@ -278,7 +303,6 @@
         function displayTable(data) {
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '';
-
             data.forEach(item => {
                 const row = document.createElement('tr');
                 const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.street + ', Karlsruhe, Germany')}`;
@@ -293,15 +317,15 @@
 
         function filterTable(searchTerm) {
             searchTerm = searchTerm.toLowerCase();
-            const filteredData = originalData.filter(item => 
-                item.date.toLowerCase().includes(searchTerm) || 
+            const filteredData = originalData.filter(item =>
+                item.date.toLowerCase().includes(searchTerm) ||
                 item.street.toLowerCase().includes(searchTerm)
             );
             displayTable(filteredData);
         }
 
         function sortTable(columnIndex) {
-            if (columnIndex > 1) return; // Skip URL column
+            if (columnIndex > 1) return;
             const isDateColumn = columnIndex === 0;
             originalData.sort((a, b) => {
                 const valueA = isDateColumn ? a.date : a.street;
@@ -323,8 +347,11 @@
             filterTable(e.target.value);
         });
 
-        window.onload = loadJson;
-	hidePastButton.click();
+        window.onload = () => {
+            loadJson();
+            const hidePastButton = document.getElementById("hide-past");
+            hidePastButton.click();
+        };
     </script>
 </body>
 </html>
